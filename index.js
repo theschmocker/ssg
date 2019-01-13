@@ -1,12 +1,8 @@
-const matter = require('gray-matter');
-const remark = require('remark');
-const html = require('remark-html');
 const path = require('path');
 const siteData = require('./config.ssg.js').site;
 const { promisify } = require('util');
 const fs = require('fs');
 
-const SSG = require('./src/SSG');
 const Renderer = require('./src/Renderer');
 const Page = require('./src/Page');
 const PageWriter = require('./src/PageWriter');
@@ -42,53 +38,6 @@ async function exists(fileName) {
     })
 }
 
-/**
- * Returns a filename without its extension
- * @example
- * //returns 'index'
- * fileNameWithoutExtension('index.md')
- * @param  {string} fileName
- */
-function fileNameWithoutExtension(fileName) {
-    return fileName.split('.')[0];
-}
-
-
-/**
- * Builds an object representation of a top-level page. Uses gray-matter to read markdown file
- * 
- * @param  {object} markdownFile
- * @returns {object} Representation of a top-level page
- */
-function createPage(markdownFile) {
-    const fileName = fileNameWithoutExtension(markdownFile);
-
-    const pageData = matter.read(`./${markdownFile}`);
-    pageData.data.path = `/${fileName}.html`;
-
-    return pageData;
-}
-/**
- * Writes a page (rendered by Nunjucks) to the _site directory.
- * 
- * @param  {object} page A page object created by {@link createPage}
- * @param  {object} globalData
- */
-async function writePage(page, globalData) {
-    const content = await convertMarkdownToHTML(page.content);
-
-    const data = {
-        ...page.data,
-        content,
-        site: globalData,
-    };
-
-    const renderer = new Renderer();
-
-    const rendered = renderer.render(data);
-
-    await writeFile(`_site${page.data.path}`, rendered);
-}
 /**
  * Build the site
  * TODO: Split this up into smaller functions
