@@ -1,29 +1,11 @@
 const path = require('path');
 const siteData = require('./config.ssg.js').site;
-const { promisify } = require('util');
-const fs = require('fs');
+
+const { mkdir, readdir, access, constants: fsConstants } = require('./src/util/fs-promise');
 
 const Renderer = require('./src/Renderer');
 const Page = require('./src/Page');
 const PageWriter = require('./src/PageWriter');
-
-/**
- * Promisified wrapper of fs.mkdir
- * @function mkdir
- */
-const mkdir = promisify(fs.mkdir);
-
-/**
- * Promisified wrapper of fs.readdir
- * @function readdir
- */
-const readdir = promisify(fs.readdir);
-
-/**
- * Promisified wrapper of fs.writeFile
- * @function writeFile
- */
-const writeFile = promisify(fs.writeFile);
 
 /**
  * Uses fs.access to determine whether or not a file exists
@@ -31,11 +13,12 @@ const writeFile = promisify(fs.writeFile);
  * @return {Promise} A promise that resolves to true or false, depending on whether or not the file exists
  */
 async function exists(fileName) {
-    return new Promise(resolve => {
-        fs.access(fileName, fs.constants.F_OK, err => {
-            resolve(!err);
-        })
-    })
+    try {
+        await access(fileName, fsConstants.F_OK);
+        return true;
+    } catch (e) {
+        return false
+    }
 }
 
 /**
