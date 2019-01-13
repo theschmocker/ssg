@@ -1,0 +1,15 @@
+{% extends "default.njk" %}
+
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+{{ content }}
+<h2>Employees</h2>
+<ul>
+    {% for employee in employees %}
+        <li>{{ employee }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
