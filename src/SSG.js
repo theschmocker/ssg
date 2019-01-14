@@ -2,7 +2,7 @@ const path = require('path');
 const { mkdir, readdir } = require('./util/fs-promise');
 
 const fileExists = require('./util/fileExists');
-const siteData = require('../config.ssg.js').site;
+const { options, site: siteData } = require('../config.ssg.js');
 
 const Page = require('./Page');
 
@@ -22,7 +22,14 @@ class SSG {
     }
 
     async _createPages() {
-        const markdownFiles = (await readdir('.')).filter(fileName => fileName.endsWith('.md'));
+        let markdownFiles = 
+            (await readdir('.'))
+                .filter(fileName => fileName.endsWith('.md'));
+            
+        if (options.ignoreReadme) {
+            markdownFiles = markdownFiles.filter(fileName => !/readme/i.test(fileName));
+        }
+
         this.pages = markdownFiles.map(file => new Page(file));
     }
 
