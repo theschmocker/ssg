@@ -63,14 +63,14 @@ class SSG {
      * Inject all pages with global site data
      * @access private
      */
-    _injectPagesWithSiteData() {
+    _injectPagesWithContext() {
         const data = {
             menu: this.topLevelMenu,
             ...siteData
         }
 
         this.pages.forEach(page => {
-            page.injectSiteData(data);
+            page.injectContext(data);
         });
     }
 
@@ -92,7 +92,7 @@ class SSG {
         await this._createSiteDirIfNecessary();
         await this._createPages();
         this._createTopLevelMenu()
-        this._injectPagesWithSiteData();
+        this._injectPagesWithContext();
         await this._writePages();
     }
 }

@@ -39,11 +39,11 @@ class Page {
      * Used to inject global data into a page
      * @example
      * //accessible in template under site.menu
-     * page.injectSiteData({ menu: menuItems });
+     * page.injectContext({ menu: menuItems });
      * 
      * @param  {object} siteData 
      */
-    injectSiteData(siteData) {
+    injectContext(siteData) {
         this.pageData = {
             ...this.pageData,
             site: siteData
