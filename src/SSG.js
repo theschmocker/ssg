@@ -1,4 +1,5 @@
 const path = require('path');
+const matter = require('gray-matter');
 const { mkdir, readdir } = require('./util/fs-promise');
 
 const fileExists = require('./util/fileExists');
@@ -33,6 +34,13 @@ class SSG {
         if (!siteDirExists) await mkdir(fullPathToSiteDir);
     }
 
+    /**
+     * Create site collections to be passed to pages as global context.
+     * TODO: Break into smaller functions
+     * TODO: Better documentation
+     * TODO: Create pages for collections with 'output' set to true
+     * @access private
+     */
     async _createCollections() {
         const collectionDirExists = async collectionName => {
             const dirnames = await readdir('.')
@@ -46,7 +54,26 @@ class SSG {
 
         for (const collection of collections) {
             if (await collectionDirExists(collection.name) && await collectionDirIsNotEmpty(collection.name)) {
-                console.log('Non empty collection!');
+
+                if (!this.collections[collection.name]) {
+                    this.collections[collection.name] = {
+                        items: []
+                    }
+                }
+
+                //only support Markdown files, for now
+                const collectionDir = `./_${collection.name}`;
+                const filesInCollection = (await readdir(collectionDir))
+                    .filter(fileName => fileName.endsWith('.md'))
+                    .map(fileName => path.join(collectionDir, fileName))
+                    .forEach(file => {
+                        const { data, content, excerpt } = matter.read(file)
+                        this.collections[collection.name].items.push({
+                            content,
+                            excerpt,
+                            ...data
+                        });
+                    });
             }
         }
     }
@@ -84,13 +111,21 @@ class SSG {
      * @access private
      */
     _injectPagesWithContext() {
-        const data = {
+        // remove collection metadata
+        const collections = Object.keys(this.collections)
+            .reduce((colsObject, collection) => ({
+                ...colsObject,
+                [collection]: this.collections[collection].items,
+            }), {});
+
+        const context = {
             menu: this.topLevelMenu,
-            ...siteData
+            ...siteData,
+            ...collections
         }
 
         this.pages.forEach(page => {
-            page.injectContext(data);
+            page.injectContext(context);
         });
     }
 
