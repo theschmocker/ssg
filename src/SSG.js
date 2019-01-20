@@ -2,7 +2,7 @@ const path = require('path');
 const { mkdir, readdir } = require('./util/fs-promise');
 
 const fileExists = require('./util/fileExists');
-const { options, site: siteData } = require('../config.ssg.js');
+const { options, site: siteData, collections } = require('../config.ssg.js');
 
 const Page = require('./Page');
 
@@ -19,6 +19,7 @@ class SSG {
         this.pages = [];
         this.topLevelMenu = [];
         this.pageWriter = pageWriter;
+        this.collections = {};
     }
 
     /**
@@ -31,6 +32,17 @@ class SSG {
 
         if (!siteDirExists) await mkdir(fullPathToSiteDir);
     }
+
+    async _createCollections() {
+        const collectionNames = collections.map(collection => collection.name);
+        const dirnames = await readdir(process.cwd());
+        const dirsThatAreCollections = dirnames
+            .filter(dir => {
+                return collectionNames.includes(dir.replace('_', ''));
+            });
+        
+    }
+
 
     /**
      * Create an array of Page objects from markdown files in the base directory
@@ -92,6 +104,7 @@ class SSG {
         await this._createSiteDirIfNecessary();
         await this._createPages();
         this._createTopLevelMenu()
+        await this._createCollections();
         this._injectPagesWithContext();
         await this._writePages();
     }
