@@ -34,13 +34,21 @@ class SSG {
     }
 
     async _createCollections() {
-        const collectionNames = collections.map(collection => collection.name);
-        const dirnames = await readdir(process.cwd());
-        const dirsThatAreCollections = dirnames
-            .filter(dir => {
-                return collectionNames.includes(dir.replace('_', ''));
-            });
-        
+        const collectionDirExists = async collectionName => {
+            const dirnames = await readdir('.')
+            return dirnames.includes(`_${collectionName}`);
+        };
+
+        const collectionDirIsNotEmpty = async collectionName => {
+            const filesInCollectionDir = await readdir(`./_${collectionName}`);
+            return filesInCollectionDir.length > 0;
+        }
+
+        for (const collection of collections) {
+            if (await collectionDirExists(collection.name) && await collectionDirIsNotEmpty(collection.name)) {
+                console.log('Non empty collection!');
+            }
+        }
     }
 
 
