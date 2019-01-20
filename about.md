@@ -1,9 +1,6 @@
 ---
 template: about
 title: About
-employees: 
-    - Me 
-    - You
 ---
 
 # Howdy, There!
