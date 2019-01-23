@@ -6,6 +6,7 @@ const fileExists = require('./util/fileExists');
 const { options, site: siteData, collections } = require('../config.ssg.js');
 
 const Page = require('./Page');
+const Collection = require('./Collection');
 
 /** Main static site generating class
  * TODO: Improve this class' docblocks
@@ -42,38 +43,12 @@ class SSG {
      * @access private
      */
     async _createCollections() {
-        const collectionDirExists = async collectionName => {
-            const dirnames = await readdir('.')
-            return dirnames.includes(`_${collectionName}`);
-        };
-
-        const collectionDirIsNotEmpty = async collectionName => {
-            const filesInCollectionDir = await readdir(`./_${collectionName}`);
-            return filesInCollectionDir.length > 0;
-        }
-
         for (const collection of collections) {
-            if (await collectionDirExists(collection.name) && await collectionDirIsNotEmpty(collection.name)) {
-
-                if (!this.collections[collection.name]) {
-                    this.collections[collection.name] = {
-                        items: []
-                    }
-                }
-
-                //only support Markdown files, for now
-                const collectionDir = `./_${collection.name}`;
-                const filesInCollection = (await readdir(collectionDir))
-                    .filter(fileName => fileName.endsWith('.md'))
-                    .map(fileName => path.join(collectionDir, fileName))
-                    .forEach(file => {
-                        const { data, content, excerpt } = matter.read(file)
-                        this.collections[collection.name].items.push({
-                            content,
-                            excerpt,
-                            ...data
-                        });
-                    });
+            try {
+                this.collections[collection.name] = await new Collection(collection.name);
+            } catch (e) {
+                console.log(e);
+                continue;
             }
         }
     }
