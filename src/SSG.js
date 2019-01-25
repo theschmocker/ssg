@@ -1,5 +1,4 @@
 const path = require('path');
-const matter = require('gray-matter');
 const { mkdir, readdir } = require('./util/fs-promise');
 
 const fileExists = require('./util/fileExists');
