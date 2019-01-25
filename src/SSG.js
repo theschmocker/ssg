@@ -45,9 +45,9 @@ class SSG {
     async _createCollections() {
         for (const collection of collections) {
             try {
-                this.collections[collection.name] = await new Collection(collection.name);
+                this.collections[collection.name] = new Collection(collection.name);
             } catch (e) {
-                console.log(e);
+                console.log(e.message);
                 continue;
             }
         }
