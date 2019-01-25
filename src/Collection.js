@@ -1,38 +1,42 @@
-const { readdir } = require('./util/fs-promise');
+const { readdirSync } = require('fs');
+const path = require('path');
+
+const matter = require('gray-matter');
 
 class Collection {
-    async constructor(name) {
+    constructor(name) {
         this.name = name;
         this.items = [];
-        if ( !(await this._collectionDirExists()) ) {
+        if ( !this._collectionDirExists() ) {
             throw new Error(`Collection "${this.name}" does not exist. Create the directory "${this.collectionDirName}" in the project root`);
         }
 
-        if ( await this._collectionDirIsEmpty() ) {
-            console.log();
+        if ( this._collectionDirIsEmpty() ) {
             throw new Error(`Collection "${this.name}" does not have any items. Put something into "${this.collectionDirName}"!`);
         }
+
+        this._createCollectionItems();
     }
 
     get collectionDirName() {
         return `_${this.name}`;
     }
 
-    async _collectionDirExists() {
-        const dirnames = await readdir('.')
+    _collectionDirExists() {
+        const dirnames = readdirSync('.')
         return dirnames.includes(`_${this.name}`);
     }
 
-    async _collectionDirIsEmpty() {
-        const filesInCollectionDir = await readdir('./' + this.collectionDirName);
+    _collectionDirIsEmpty() {
+        const filesInCollectionDir = readdirSync('./' + this.collectionDirName);
         return filesInCollectionDir.length < 1;
     }
 
-    async _createCollectionItems() {
-        return (await readdir(this.collectionDirName))
+    _createCollectionItems() {
+        return readdirSync(this.collectionDirName)
             // only support markdown files, for now
             .filter(fileName => fileName.endsWith('.md'))
-            .map(fileName => path.join(collectionDir, fileName))
+            .map(fileName => path.join(this.collectionDirName, fileName))
             .forEach(file => {
                 const { data, content, excerpt } = matter.read(file)
                 this.items.push({
