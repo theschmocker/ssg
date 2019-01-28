@@ -3,6 +3,8 @@ const path = require('path');
 
 const matter = require('gray-matter');
 
+const File = require('./File');
+
 class Collection {
     constructor(name) {
         this.name = name;
@@ -38,6 +40,7 @@ class Collection {
             .filter(fileName => fileName.endsWith('.md'))
             .map(fileName => path.join(this.collectionDirName, fileName))
             .forEach(file => {
+                File(file);
                 const { data, content, excerpt } = matter.read(file)
                 this.items.push({
                     content,
@@ -47,5 +50,19 @@ class Collection {
             });
     }
 }
+    // function _createCollectionItems() {
+    //     return readdirSync(this.collectionDirName)
+    //         .map(fileName => new File(fileName))
+    //         .filter(file => file.typeIsSupported())
+    //         //.map(fileName => path.join(this.collectionDirName, fileName))
+    //         .forEach(file => {
+    //             const { data, content, excerpt } = file.readAndParse();
+    //             this.items.push({
+    //                 content,
+    //                 excerpt,
+    //                 ...data
+    //             });
+    //         });
+    // }
 
 module.exports = Collection;
