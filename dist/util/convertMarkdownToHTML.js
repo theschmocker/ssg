@@ -1,6 +1,7 @@
-const remark = require('remark');
-const html = require('remark-html');
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const remark = require("remark");
+const html = require("remark-html");
 /**
  * @param  {string} markdown - The markdown content to be converted
  * @returns {Promise} A promise with the converted HTML content
@@ -10,11 +11,10 @@ function convertMarkdownToHTML(markdown) {
         remark()
             .use(html)
             .process(markdown, (err, file) => {
-                if (err) reject(err);
-
-                resolve(file.contents);
-            })
-    })
+            if (err)
+                reject(err);
+            resolve(file.contents);
+        });
+    });
 }
-
-module.exports = convertMarkdownToHTML;
+exports.default = convertMarkdownToHTML;

@@ -1,4 +1,4 @@
-const nunjucks = require('nunjucks');
+import * as nunjucks from 'nunjucks';
 
 class Renderer {
     /**
@@ -26,4 +26,4 @@ class Renderer {
     }
 }
 
-module.exports = Renderer;
+export default Renderer;

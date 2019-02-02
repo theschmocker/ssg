@@ -1,8 +1,8 @@
-const path = require('path');
+import * as path from 'path';
 
-const SSG = require('./src/SSG');
-const PageWriter = require('./src/PageWriter');
-const Renderer = require('./src/Renderer');
+import SSG from './SSG';
+import PageWriter from './PageWriter';
+import Renderer from './Renderer';
 
 const renderer = new Renderer(path.join(process.cwd(), "_templates"), {
     autoescape: false

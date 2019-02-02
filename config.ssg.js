@@ -1,6 +1,7 @@
 module.exports = {
     options: {
         ignoreReadme: true,
+        buildDirectory: './_site'
     },
     site: {
         title: 'SSG',

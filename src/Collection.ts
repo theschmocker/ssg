@@ -1,40 +1,45 @@
-const { readdirSync } = require('fs');
-const path = require('path');
+import { readdirSync } from 'fs';
+import * as path from 'path';
 
-const matter = require('gray-matter');
+import * as matter from 'gray-matter';
 
-const File = require('./File');
+import File from './File';
 
 class Collection {
-    constructor(name) {
-        this.name = name;
-        this.items = [];
-        if ( !this._collectionDirExists() ) {
+    private _items: any[];
+    
+    constructor(public name: string) {
+        this._items = [];
+        if ( !this.collectionDirExists() ) {
             throw new Error(`Collection "${this.name}" does not exist. Create the directory "${this.collectionDirName}" in the project root`);
         }
 
-        if ( this._collectionDirIsEmpty() ) {
+        if ( this.collectionDirIsEmpty() ) {
             throw new Error(`Collection "${this.name}" does not have any items. Put something into "${this.collectionDirName}"!`);
         }
 
-        this._createCollectionItems();
+        this.createCollectionItems();
     }
 
     get collectionDirName() {
         return `_${this.name}`;
     }
 
-    _collectionDirExists() {
+    get items() {
+        return this._items;
+    }
+
+    private collectionDirExists() {
         const dirnames = readdirSync('.')
         return dirnames.includes(`_${this.name}`);
     }
 
-    _collectionDirIsEmpty() {
+    private collectionDirIsEmpty() {
         const filesInCollectionDir = readdirSync('./' + this.collectionDirName);
         return filesInCollectionDir.length < 1;
     }
 
-    _createCollectionItems() {
+    private createCollectionItems() {
         return readdirSync(this.collectionDirName)
             // only support markdown files, for now
             .filter(fileName => fileName.endsWith('.md'))
@@ -42,7 +47,7 @@ class Collection {
             .forEach(file => {
                 File(file);
                 const { data, content, excerpt } = matter.read(file)
-                this.items.push({
+                this._items.push({
                     content,
                     excerpt,
                     ...data
@@ -65,4 +70,4 @@ class Collection {
     //         });
     // }
 
-module.exports = Collection;
+export default Collection;
