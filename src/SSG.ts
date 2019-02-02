@@ -4,16 +4,30 @@ import fsPromise from './util/fs-promise';
 const { mkdir, readdir } = fsPromise;
 
 import fileExists from './util/fileExists';
-import { options, site as siteData, collections } from '../config.ssg.js';
+import { options, site as siteData, collections } from '../default-config.ssg.js';
 
 import Page from './Page';
 import Collection from './Collection';
+
+let config: any;
+
+try {
+    const userConfig = require(path.join(process.cwd(), 'config.ssg.js'));
+    config = {
+        ...options,
+        ...userConfig,
+    }
+} catch (e) {
+    config ={
+        ...options,
+    }
+}
 
 /** Main static site generating class
  * TODO: Improve this class' docblocks
  */
 class SSG {
-    protected siteDirectory: string;
+    protected siteDirectory: string = config.buildDirectory;
     protected pages: any[];
     protected topLevelMenu: any[];
     protected pageWriter: any;
@@ -24,7 +38,6 @@ class SSG {
      * @param  {PageWriter} pageWriter - The PageWriter object to be used in the writing of pages
      */
     constructor(pageWriter: any) {
-        this.siteDirectory = '_site';
         this.pages = [];
         this.topLevelMenu = [];
         this.pageWriter = pageWriter;
