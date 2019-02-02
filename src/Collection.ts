@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import * as matter from 'gray-matter';
 
-import File from './File';
+import FileFactory from './File';
 
 class Collection {
     private _items: any[];
@@ -42,16 +42,19 @@ class Collection {
     private createCollectionItems() {
         return readdirSync(this.collectionDirName)
             // only support markdown files, for now
-            .filter(fileName => fileName.endsWith('.md'))
             .map(fileName => path.join(this.collectionDirName, fileName))
-            .forEach(file => {
-                File(file);
-                const { data, content, excerpt } = matter.read(file)
-                this._items.push({
-                    content,
-                    excerpt,
-                    ...data
-                });
+            .forEach(fileName => {
+                try {
+                    const file = FileFactory.buildFile(fileName);
+                    const { data, content, excerpt } = file
+                    this._items.push({
+                        content,
+                        excerpt,
+                        ...data
+                    });
+                } catch(e) {
+                    console.log(e.message);
+                }
             });
     }
 }
